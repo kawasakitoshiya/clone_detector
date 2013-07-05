@@ -7,25 +7,28 @@ import xml.sax.handler
 
 class Handler(xml.sax.handler.ContentHandler):
     in_graph=False
+    in_vertex=False
+    in_edge=False
+    nest={}
     dic={"node":[],"edge":[]}
     def startElement(self, name, attrs):
         if name == "Graph":
             self.in_graph = True
         if self.in_graph:
             if name == "Vertex":
-                nest={}
-                nest["id"]=attrs.getValue("vertexId")
-                self.dic["node"].append(nest)
+                self.nest={}
+                self.in_vertex=True
+                self.nest["id"]=attrs.getValue("vertexId")
             elif name == "Edge":
-                nest={}
-                nest["id"]=attrs.getValue("edgeId")
-                nest["source"]=attrs.getValue("bgnVertexId")
-                nest["target"]=attrs.getValue("endVertexId")
-                self.dic["edge"].append(nest)
+                self.nest={}
+                self.in_edge=True
+                self.nest["id"]=attrs.getValue("edgeId")
+                self.nest["source"]=attrs.getValue("bgnVertexId")
+                self.nest["target"]=attrs.getValue("endVertexId")
             elif name == "VertexLabel":
-                pass
+                self.nest["label"] = attrs.getValue("value")
             elif name == "EdgeLabel":
-                pass
+                self.nest["label"] = attrs.getValue("value")
         """"
         print "Start: " + name
         print "names",attrs.getNames()
@@ -37,7 +40,14 @@ class Handler(xml.sax.handler.ContentHandler):
 
     def endElement(self, name):
         #print "End: " + name
-        if name == "GraphML":
+        if self.in_vertex:
+            self.in_vertex = False
+            self.dic["node"].append(self.nest)
+        elif self.in_edge:
+            self.in_edge = False
+            self.dic["edge"].append(self.nest)
+        
+        elif name == "GraphML":
             print "end parse"
         pass
     
@@ -46,7 +56,7 @@ class Handler(xml.sax.handler.ContentHandler):
         return
 
 class AGMTranslator(object):
-    
+    """We cant use 'label because gml doesnt allow duplicate label name'"""
     def dic2graphml(self, dic, out):
         file_pointer = open(out, "w")
         
@@ -62,7 +72,7 @@ class AGMTranslator(object):
             file_pointer.write("\tnode\t[\n")
             file_pointer.write("\t\troot_index\t"+id+"\n")
             file_pointer.write("\t\tid\t"+id+"\n")
-            #file_pointer.write("\t\tlabel\t"+node[label]+"\n")
+            #file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
             file_pointer.write("\t]\n")
             num_node=num_node+1
         #edge
@@ -74,7 +84,7 @@ class AGMTranslator(object):
             file_pointer.write("\t\troot_index\t"+id+"\n")
             file_pointer.write("\t\ttarget\t"+target+"\n")
             file_pointer.write("\t\tsource\t"+source+"\n")
-            #file_pointer.write("\t\tlabel\t"+edge[label]+"\n")
+            #file_pointer.write("\t\tlabel\t\""+edge["label"]+"\"\n")
             file_pointer.write("\t]\n")
         #end graph
         file_pointer.write("]\n")
