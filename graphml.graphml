@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+<!-- 宣言部 --> 
+<!-- データに対するキーの定義を行う --> 
+<key attr.name="label" attr.type="string" for="node" id="label"/>
+<key attr.name="Edge Label" attr.type="string" for="edge" id="edgelabel"/>
+<key attr.name="weight" attr.type="double" for="edge" id="weight"/>
+<key attr.name="Edge Id" attr.type="string" for="edge" id="edgeid"/>
+<key attr.name="r" attr.type="int" for="node" id="r"/>
+<key attr.name="g" attr.type="int" for="node" id="g"/>
+<key attr.name="b" attr.type="int" for="node" id="b"/>
+<key attr.name="x" attr.type="float" for="node" id="x"/>
+<key attr.name="y" attr.type="float" for="node" id="y"/>
+<key attr.name="size" attr.type="float" for="node" id="size"/>
+<key attr.name="root_index" attr.type="string" for="node" id="root_index"/>
+<key attr.name="type" attr.type="string" for="node" id="type"/>
+<key attr.name="outline" attr.type="string" for="node" id="outline"/>
+<key attr.name="outline_width" attr.type="string" for="node" id="outline_width"/>
+<key attr.name="root_index" attr.type="string" for="edge" id="root_index"/>
+<key attr.name="width" attr.type="string" for="edge" id="width"/>
+<key attr.name="fill" attr.type="string" for="edge" id="fill"/>
+<key attr.name="type" attr.type="string" for="edge" id="type"/>
+<key attr.name="source_arrow" attr.type="string" for="edge" id="source_arrow"/>
+<key attr.name="target_arrow" attr.type="string" for="edge" id="target_arrow"/>
+<!-- データ指定 --> 
+<graph edgedefault="directed"><!-- グラフの種類。この場合有向グラフ --> 
+<node id="-114.0"><!-- ノードごとに一意なIDを設定する --> 
+<data key="label">a</data><!-- 表示されるラベル（省略化） --> 
+<data key="root_index">-114.0</data><!-- Gephi用 --> 
+<data key="type">ellipse</data><!-- 形（省略化） -->
+<data key="outline">#33ff00</data><!-- 縁の色（省略化） -->
+<data key="outline_width">11.0</data><!-- 縁の太さ（省略化） -->
+<data key="size">100.0</data><!-- ノードの大きさ（省略化） -->
+<data key="r">204</data><!-- ノードの色rgb指定（省略化） -->
+<data key="g">255</data>
+<data key="b">0</data>
+<data key="x">-437.66287</data><!-- 座標（省略化） -->
+<data key="y">46.562424</data><!-- 座標（省略化） -->
+</node>
+<node id="-115.0">
+<data key="label">B</data>
+<data key="root_index">-115.0</data>
+<data key="type">octagon</data>
+<data key="outline">#666666</data>
+<data key="outline_width">1.0</data>
+<data key="size">14.0</data>
+<data key="fill">#00ffFF</data>
+<data key="x">437.66287</data>
+<data key="y">-46.562424</data>
+</node>
+<!-- 枝の始点と終点をノードのIDで指定。有向グラフならsourceからtargetに枝がつく。（つまりtarget側に矢印） --> 
+<edge source="-114.0" target="-115.0">
+<data key="edgelabel">DefaultEdge</data><!-- 枝のラベル -->
+<data key="weight">2.0</data><!-- 枝の重み -->
+<data key="root_index">-426.0</data><!-- Gephi用？ -->
+<data key="width">11.0</data><!-- 枝の太さ -->
+<data key="fill">#00ff66</data><!-- 枝の色 -->
+<data key="type">line</data><!-- 枝の形 -->
+<data key="source_arrow">0.0</data><!-- 枝の始点の形 -->
+<data key="target_arrow">3.0</data><!-- 枝の終点の形 -->
+</edge>
+</graph>
+</graphml>
