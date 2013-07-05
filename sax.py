@@ -1,61 +1,99 @@
 """This file provides original SAX"""
 
 import re
+import xml.sax
+import xml.sax.handler
 
 
-class Sax(object):
-    """Sax"""
-    t_open=0
-    t_close=1
-    t_alone=2
-    def __init__(self, file_path):
-        """ """
-        self.file_path = file_path
-        self.json = {}
+class Handler(xml.sax.handler.ContentHandler):
+    in_graph=False
+    dic={"node":[],"edge":[]}
+    def startElement(self, name, attrs):
+        if name == "Graph":
+            self.in_graph = True
+        if self.in_graph:
+            if name == "Vertex":
+                nest={}
+                nest["id"]=attrs.getValue("vertexId")
+                self.dic["node"].append(nest)
+            elif name == "Edge":
+                nest={}
+                nest["id"]=attrs.getValue("edgeId")
+                nest["source"]=attrs.getValue("bgnVertexId")
+                nest["target"]=attrs.getValue("endVertexId")
+                self.dic["edge"].append(nest)
+            elif name == "VertexLabel":
+                pass
+            elif name == "EdgeLabel":
+                pass
+        """"
+        print "Start: " + name
+        print "names",attrs.getNames()
+        for key in attrs.getNames():
+            
+            print "types",attrs.getType(key)
+            print "values",attrs.getValue(key)
+        """
 
-    def eval_line(self, line, callback_for_line):
-        end_index = line.index('>')
-        element={}
-        if line[end_index-1] == "/":
-            element["type"]=self.t_alone
-        elif line[1] == "/":
-            element["type"]=self.t_close
-        else:
-            element["type"]=self.t_open
-        
-        list = line[1:end_index-1].split(' ')
-        
-        rest="".join(list[1:])
-        element["attributes"]={}
-        element["tag"] = list[0]
-        pattern = re.search(r' (.)+=(.)',rest)
-        print pattern.group()
+    def endElement(self, name):
+        #print "End: " + name
+        if name == "GraphML":
+            print "end parse"
+        pass
+    
+    def characters(self, content):
+        #print "character:" + content
         return
-        if len(list)>1:
-            for elem in list[1:]:
-                key_value=elem.split("=")
-                key=key_value[0].strip()
-                print key_value,list
-                element["attributes"][key]=key_value[1].strip()
-        callback_for_line(element)
+
+class AGMTranslator(object):
     
-    def parse(self, callback_for_line):
-        with open(self.file_path) as lines:
-            for line in lines:
-                start_index = line.index('<')
-                self.eval_line(line[start_index:], callback_for_line)
-                try:
-                    #TODO: deal with line which have more than one tags
-                    pass
-                except ValueError as value_error:
-                    print "Not a tag line."
-                except Exception as e:
-                    print e
+    def dic2graphml(self, dic, out):
+        file_pointer = open(out, "w")
         
+        #header
+        file_pointer.write('Creater\t"TK"\n')
+        file_pointer.write("Version\t1.0\n")
+        #graph
+        file_pointer.write("graph\t[\n")
+        #node
+        num_node=0
+        for node in dic["node"]:
+            id = node["id"]
+            file_pointer.write("\tnode\t[\n")
+            file_pointer.write("\t\troot_index\t"+id+"\n")
+            file_pointer.write("\t\tid\t"+id+"\n")
+            #file_pointer.write("\t\tlabel\t"+node[label]+"\n")
+            file_pointer.write("\t]\n")
+            num_node=num_node+1
+        #edge
+        for edge in dic["edge"]:
+            id = str(int(edge["id"])*-1)
+            target=edge["target"]
+            source=edge["source"]
+            file_pointer.write("\tedge\t[\n")
+            file_pointer.write("\t\troot_index\t"+id+"\n")
+            file_pointer.write("\t\ttarget\t"+target+"\n")
+            file_pointer.write("\t\tsource\t"+source+"\n")
+            #file_pointer.write("\t\tlabel\t"+edge[label]+"\n")
+            file_pointer.write("\t]\n")
+        #end graph
+        file_pointer.write("]\n")
+        #footer
+        file_pointer.write('Title\t"TestNetwork"\n')
+        file_pointer.close()
+        
+    
+    def agm2graphml(self, fp, out):
+        parser = xml.sax.make_parser()
+        handler=Handler()
+        parser.setContentHandler(handler)
+        parser.parse(fp)
+        print handler.dic
+        self.dic2graphml(handler.dic, out)
+    
+
+
 if __name__ == '__main__':
-    sax = Sax("./agm.graphml")
-    
-    def cb(data):
-        print data["type"]
-    
-    sax.parse(cb)
+    agm = AGMTranslator()
+    agm.agm2graphml("./utf8.xml", "o.gml")
+
