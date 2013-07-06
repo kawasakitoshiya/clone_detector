@@ -72,8 +72,16 @@ class AGMTranslator(object):
             file_pointer.write("\tnode\t[\n")
             file_pointer.write("\t\troot_index\t"+id+"\n")
             file_pointer.write("\t\tid\t"+id+"\n")
+            file_pointer.write("\t\tgraphics\t[\n")
+            
+            file_pointer.write("\t\t\tx\t"+str(num_node*100)+"\n")
+            file_pointer.write("\t\t\ty\t"+str(num_node%2*100)+"\n")
+            file_pointer.write("\t\t\tw\t50\n")
+            file_pointer.write("\t\t\th\t50\n")
+            file_pointer.write("\t\t]\n") #end graphics
+            
             #file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
-            file_pointer.write("\t]\n")
+            file_pointer.write("\t]\n") #end node
             num_node=num_node+1
         #edge
         for edge in dic["edge"]:

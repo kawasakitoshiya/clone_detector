@@ -4,26 +4,62 @@ graph	[
 	node	[
 		root_index	1
 		id	1
+		graphics	[
+			x	0
+			y	0
+			w	50
+			h	50
+		]
 	]
 	node	[
 		root_index	2
 		id	2
+		graphics	[
+			x	100
+			y	100
+			w	50
+			h	50
+		]
 	]
 	node	[
 		root_index	3
 		id	3
+		graphics	[
+			x	200
+			y	0
+			w	50
+			h	50
+		]
 	]
 	node	[
 		root_index	4
 		id	4
+		graphics	[
+			x	300
+			y	100
+			w	50
+			h	50
+		]
 	]
 	node	[
 		root_index	5
 		id	5
+		graphics	[
+			x	400
+			y	0
+			w	50
+			h	50
+		]
 	]
 	node	[
 		root_index	6
 		id	6
+		graphics	[
+			x	500
+			y	100
+			w	50
+			h	50
+		]
 	]
 	edge	[
 		root_index	-1
