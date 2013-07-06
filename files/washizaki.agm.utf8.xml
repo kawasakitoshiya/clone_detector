@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphML version="0.1">
+<Header copyright="musashi.sourceforge.jp" description="xt2gml">
+
+<DataDictionary numberOfFields="2">
+<DataField name="node_name" optype="categorical">
+<Value value="A"/>
+<Value value="B"/>
+<Value value="C"/>
+</DataField>
+<DataField name="bondtype" optype="categorical">
+<Value value="singlebond"/>
+<Value value="aromaticbond"/>
+<Value value="doublebond"/>
+<Value value="triplebond"/>
+</DataField>
+</DataDictionary>
+
+</Header>
+<GraphData>
+
+<Graph graphId="1">
+<Vertex vertexId="1" dimension="1">
+<VertexLabel field="node_name" value="A"/>
+</Vertex>
+<Vertex vertexId="2" dimension="1">
+<VertexLabel field="node_name" value="B"/>
+</Vertex>
+<Vertex vertexId="3" dimension="1">
+<VertexLabel field="node_name" value="C"/>
+</Vertex>
+<Edge edgeId="1" edgeType="undirected" dimension="1" bgnVertexId="1" endVertexId="2">
+</Edge>
+<Edge edgeId="2" edgeType="undirected" dimension="1" bgnVertexId="2" endVertexId="3">
+</Edge>
+</Graph>
+
+<Graph graphId="2">
+<Vertex vertexId="1" dimension="1">
+<VertexLabel field="node_name" value="A"/>
+</Vertex>
+<Vertex vertexId="2" dimension="1">
+<VertexLabel field="node_name" value="B"/>
+</Vertex>
+<Vertex vertexId="3" dimension="1">
+<VertexLabel field="node_name" value="C"/>
+</Vertex>
+<Edge edgeId="1" edgeType="undirected" dimension="1"  bgnVertexId="1" endVertexId="2">
+</Edge>
+<Edge edgeId="2" edgeType="undirected" dimension="1"  bgnVertexId="2" endVertexId="3">
+</Edge>
+</Graph>
+
+<Graph graphId="3">
+<Vertex vertexId="1" dimension="1">
+<VertexLabel field="node_name" value="A"/>
+</Vertex>
+<Vertex vertexId="2" dimension="1">
+<VertexLabel field="node_name" value="B"/>
+</Vertex>
+<Edge edgeId="1" edgeType="undirected" dimension="1"  bgnVertexId="1" endVertexId="2">
+</Edge>
+</Graph>
+
+</GraphData>
+</GraphML>
