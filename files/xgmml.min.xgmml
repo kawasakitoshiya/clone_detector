@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<graph label="Network" directed="1" xmlns="http://www.cs.rpi.edu/XGMML">
+  <node id="73" label="B">
+  </node>
+  <node id="72" label="a">
+  </node>
+  <edge id="702" label="a (DefaultEdge) B" source="72" target="73" cy:directed="1">
+  </edge>
+</graph>

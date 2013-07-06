@@ -6,40 +6,31 @@ import xml.sax.handler
 
 
 class Handler(xml.sax.handler.ContentHandler):
-    in_graph=False
-    in_vertex=False
-    in_edge=False
-    nest={}
-    dic={"node":[],"edge":[]}
+    in_graph = False
+    in_vertex = False
+    in_edge = False
+    nest = {}
+    dic = {"node":[], "edge":[]}
     def startElement(self, name, attrs):
         if name == "Graph":
             self.in_graph = True
         if self.in_graph:
             if name == "Vertex":
-                self.nest={}
-                self.in_vertex=True
-                self.nest["id"]=attrs.getValue("vertexId")
+                self.nest = {}
+                self.in_vertex = True
+                self.nest["id"] = attrs.getValue("vertexId")
             elif name == "Edge":
-                self.nest={}
-                self.in_edge=True
-                self.nest["id"]=attrs.getValue("edgeId")
-                self.nest["source"]=attrs.getValue("bgnVertexId")
-                self.nest["target"]=attrs.getValue("endVertexId")
+                self.nest = {}
+                self.in_edge = True
+                self.nest["id"] = attrs.getValue("edgeId")
+                self.nest["source"] = attrs.getValue("bgnVertexId")
+                self.nest["target"] = attrs.getValue("endVertexId")
             elif name == "VertexLabel":
                 self.nest["label"] = attrs.getValue("value")
             elif name == "EdgeLabel":
                 self.nest["label"] = attrs.getValue("value")
-        """"
-        print "Start: " + name
-        print "names",attrs.getNames()
-        for key in attrs.getNames():
-            
-            print "types",attrs.getType(key)
-            print "values",attrs.getValue(key)
-        """
 
     def endElement(self, name):
-        #print "End: " + name
         if self.in_vertex:
             self.in_vertex = False
             self.dic["node"].append(self.nest)
@@ -52,7 +43,7 @@ class Handler(xml.sax.handler.ContentHandler):
         pass
     
     def characters(self, content):
-        #print "character:" + content
+        pass
         return
 
 class AGMTranslator(object):
@@ -66,7 +57,7 @@ class AGMTranslator(object):
         #graph
         file_pointer.write("graph\t[\n")
         #node
-        num_node=0
+        num_node = 0
         for node in dic["node"]:
             id = node["id"]
             file_pointer.write("\tnode\t[\n")
@@ -80,9 +71,9 @@ class AGMTranslator(object):
             file_pointer.write("\t\t\th\t50\n")
             file_pointer.write("\t\t]\n") #end graphics
             
-            #file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
+            file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
             file_pointer.write("\t]\n") #end node
-            num_node=num_node+1
+            num_node = num_node+1
         #edge
         for edge in dic["edge"]:
             id = str(int(edge["id"])*-1)
@@ -101,7 +92,7 @@ class AGMTranslator(object):
         file_pointer.close()
         
     
-    def agm2graphml(self, fp, out):
+    def agm2gml(self, fp, out):
         parser = xml.sax.make_parser()
         handler=Handler()
         parser.setContentHandler(handler)
@@ -113,5 +104,5 @@ class AGMTranslator(object):
 
 if __name__ == '__main__':
     agm = AGMTranslator()
-    agm.agm2graphml("./utf8.xml", "o.gml")
+    agm.agm2gml("./utf8.xml", "output/o.gml")
 

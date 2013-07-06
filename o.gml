@@ -10,6 +10,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"H"
 	]
 	node	[
 		root_index	2
@@ -20,6 +21,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"H"
 	]
 	node	[
 		root_index	3
@@ -30,6 +32,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"C"
 	]
 	node	[
 		root_index	4
@@ -40,6 +43,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"C"
 	]
 	node	[
 		root_index	5
@@ -50,6 +54,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"H"
 	]
 	node	[
 		root_index	6
@@ -60,6 +65,7 @@ graph	[
 			w	50
 			h	50
 		]
+		label	"H"
 	]
 	edge	[
 		root_index	-1
