@@ -13,6 +13,8 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 import datetime
 from xml.dom import minidom
 
+from Queue import Queue
+
 class Handler(xml.sax.handler.ContentHandler):
     def __init__(self):
         self.in_graph = False
@@ -74,7 +76,44 @@ class AGMTranslator(object):
     """
     
     def is_all_nodes_connected(self,graph):
-        pass
+        all_nodes = len(graph["node"])
+        has_arrived=[False]*all_nodes
+        transitions=[]
+        reversed_transitions=[]
+        for i in range(all_nodes): 
+            transitions.append([])
+            reversed_transitions.append([])
+        node_arrived = 0
+        for i in range(len(graph["edge"])):
+            edge=graph["edge"][i]
+            source=int(edge["source"])-1
+            target=int(edge["target"])-1
+            transitions[source].append(target)
+            reversed_transitions[target].append(source)
+        start = int(graph["node"][0]["id"])-1
+        queue=Queue()
+        queue.put(start)
+        
+        def has_arrived_all(_has_arrived):
+            for i in range(len(_has_arrived)):
+                if _has_arrived[i] == False:
+                    return False
+            return True
+        while not queue.empty():
+            current = int(queue.get())
+            if has_arrived[current]:
+                continue
+            has_arrived[current]=True
+            for next in transitions[current]:
+                next = int(next)
+                queue.put(next)
+            for next in reversed_transitions[current]:
+                next = int(next)
+                queue.put(next)
+        
+        if not has_arrived_all(has_arrived):
+            return False
+        return True
         
     def dic2gml(self, graphs, out, min_node ,labeled ):
         file_pointer = open(out, "w")
@@ -85,13 +124,17 @@ class AGMTranslator(object):
         for i in range(len(graphs)):
             if len(graphs[i]["node"]) < min_node:
                 continue
+            graph=graphs[i]
+            if not self.is_all_nodes_connected(graph):
+                color='"#ffd700"'
+            else:
+                color='"#ffc0cb"'
             #graph
             file_pointer.write("graph\t[\n")
             #node
-            dic=graphs[i]
-            file_pointer.write("\tid\t"+dic["id"]+"\n")
+            file_pointer.write("\tid\t"+graph["id"]+"\n")
             num_node = 0
-            for node in dic["node"]:
+            for node in graph["node"]:
                 id = str(int(node["id"])+i*100)
                 root_index=str(int(node["id"])+i*100)
                 file_pointer.write("\tnode\t[\n")
@@ -102,7 +145,8 @@ class AGMTranslator(object):
                 file_pointer.write("\t\t\tx\t"+str(num_node*100)+"\n")
                 file_pointer.write("\t\t\ty\t"+str(num_node%2*100+i*300)+"\n")
                 file_pointer.write("\t\t\tw\t50\n")
-                file_pointer.write("\t\t\th\t50\n")
+                file_pointer.write("\t\t\th\t50\n") 
+                file_pointer.write("\t\t\tfill\t"+color+"\n")
                 file_pointer.write("\t\t]\n") #end graphics
                 if labeled:
                     if node.has_key("label"):
@@ -112,7 +156,7 @@ class AGMTranslator(object):
                 file_pointer.write("\t]\n") #end node
                 num_node = num_node+1
             #edge
-            for edge in dic["edge"]:
+            for edge in graph["edge"]:
                 #id = str(int(edge["id"])*-1)
                 target=str(int(edge["target"])+i*100)
                 source=str(int(edge["source"])+i*100)
