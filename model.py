@@ -59,7 +59,7 @@ class Translator(object):
                         })
                 #print _edge
                 if _edge.has_key("type"):
-                    #edge_label=SubElement(edge,"EdgeLabel",{"field":"edge_name","value":_edge["type"]})
+                    edge_label=SubElement(edge,"EdgeLabel",{"field":"edge_name","value":_edge["type"]})
                     edge_names[_edge["type"]]=True
                 edges.append(edge)
                 #edge_names[]
@@ -129,6 +129,7 @@ class Model(object):
                     #we may need name for association
                     nodes.append({
                         "id":no_inc,
+                        "name":"association", #is naming these nodes "association" correct ?
                         "meta_class":asso["_sys_meta"]
                     })
                     _edges.append({"source":asso_id,"target":asso["source"],"type":"owned_member"})
@@ -139,6 +140,7 @@ class Model(object):
             edges.append({"id":edges_no,"target":uri2id[asso["target"]],"source":uri2id[asso["source"]],"type":asso["type"]})
             edges_no = edges_no + 1
         graph={"nodes":nodes,"edges":edges}
+        #print graph
         return graph
         
         
