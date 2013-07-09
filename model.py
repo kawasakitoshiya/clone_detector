@@ -140,7 +140,6 @@ class Model(object):
             edges.append({"id":edges_no,"target":uri2id[asso["target"]],"source":uri2id[asso["source"]],"type":asso["type"]})
             edges_no = edges_no + 1
         graph={"nodes":nodes,"edges":edges}
-        #print graph
         return graph
         
         

@@ -4,9 +4,6 @@ import re
 import xml.sax
 import xml.sax.handler
 
-
-
-
 class Handler(xml.sax.handler.ContentHandler):
     in_graph = False
     in_vertex = False
