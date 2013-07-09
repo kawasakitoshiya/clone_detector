@@ -72,12 +72,18 @@ class Model(object):
                         "name":"association", #is naming these nodes "association" correct ?
                         "meta_class":asso["_sys_meta"]
                     })
-                    _edges.append({"source":asso_id,"target":asso["source"],"type":"owned_member"})
-                    _edges.append({"source":asso_id,"target":asso["target"],"type":"owned_member"})
+                    _edges.append({"source":asso_id,"target":asso["source"],"type":"owned_member","edge_type":"undirected"})
+                    _edges.append({"source":asso_id,"target":asso["target"],"type":"owned_member","edge_type":"undirected"})
                     no_inc = no_inc + 1
         edges=[]
         for asso in _edges:
-            edges.append({"id":edges_no,"target":uri2id[asso["target"]],"source":uri2id[asso["source"]],"type":asso["type"]})
+            edges.append({
+                "id":edges_no,
+                "target":uri2id[asso["target"]],
+                "source":uri2id[asso["source"]],
+                "type":asso["type"],
+                "edge_type":"undirected"
+            })
             edges_no = edges_no + 1
         graph={"nodes":nodes,"edges":edges}
         return graph

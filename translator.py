@@ -9,7 +9,6 @@ import sys
 import re
 import xml.sax
 import xml.sax.handler
-import csv
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 import datetime
 from xml.dom import minidom
@@ -73,6 +72,10 @@ class AGMTranslator(object):
     """We can optionally use label which followed by graph number and node number 
     because crypt doesn't allow duplicate label
     """
+    
+    def is_all_nodes_connected(self,graph):
+        pass
+        
     def dic2gml(self, graphs, out, min_node ,labeled ):
         file_pointer = open(out, "w")
         #header
@@ -146,8 +149,6 @@ class AGMTranslator(object):
         you should know that dic object has underbar prefix
         """
         
-        edge_type="undirected"
-        
         root = Element('GraphML')
         root.set('version', '0.1')
         header = SubElement(root,"Header",{"copyright":"hogehoge","description":"xt2gml"})
@@ -176,7 +177,7 @@ class AGMTranslator(object):
                         "dimension":str(1),
                         "bgnVertexId":str(_edge["source"]+1),
                         "endVertexId":str(_edge["target"]+1),
-                        "edgeType":edge_type
+                        "edgeType":_edge["edge_type"]
                         })
                 #print _edge
                 if _edge.has_key("type"):
