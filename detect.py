@@ -18,7 +18,8 @@ if __name__ == '__main__':
     model3=Model("./data/test3.json")
     graphs.append(model3.clooca2graph("master","HEAD"))
     
-    agm_xml = AGMTranslator().graph2agm(graphs)
+    trans0 = AGMTranslator()
+    agm_xml = trans0.graph2agm(graphs)
     fp_clooca_in = 'work/clooca.in.xml'
     f = open(fp_clooca_in, 'w') 
     f.write(agm_xml)

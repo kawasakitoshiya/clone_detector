@@ -15,12 +15,14 @@ import datetime
 from xml.dom import minidom
 
 class Handler(xml.sax.handler.ContentHandler):
-    in_graph = False
-    in_vertex = False
-    in_edge = False
-    nest = {}
-    graphs=[]
-    dic = {}
+    def __init__(self):
+        self.in_graph = False
+        self.in_vertex = False
+        self.in_edge = False
+        self.nest = {}
+        self.graphs=[]
+        self.dic = {}
+        
     def startElement(self, name, attrs):
         if name == "Graph":
             self.dic={"id":attrs.getValue("graphId"),"node":[], "edge":[]}
@@ -126,21 +128,19 @@ class AGMTranslator(object):
         
     
     def agm2gml(self, fp, out,  min_node, labeled):
-        parser = xml.sax.make_parser()
-        handler=Handler()
-        parser.setContentHandler(handler)
-        parser.parse(fp)
+        self.parser = xml.sax.make_parser()
+        self.handler=Handler()
+        self.parser.setContentHandler(self.handler)
+        self.parser.parse(fp)
         #print handler.graphs
-        self.dic2gml(handler.graphs, out, min_node, labeled)
+        self.dic2gml(self.handler.graphs, out, min_node, labeled)
         
-    @classmethod
-    def prettify(self,elem):
+    def prettify(cls,elem):
         """Return a pretty-printed XML string for the Element"""
         rough_string = tostring(elem, encoding="utf-8",)
         reparsed = minidom.parseString(rough_string)
         return reparsed.toprettyxml(indent="    ",encoding="utf-8")
 
-    @classmethod
     def graph2agm(self, _graphs):
         """receive a graph in dictionary and convert to xml object
         you should know that dic object has underbar prefix
