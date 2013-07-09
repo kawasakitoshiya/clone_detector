@@ -1,7 +1,13 @@
+"""detect.py
+
+I mainly uses this file to write main excutions
+(c) Toshiya Kawasaki 2013
+"""
+
 import sys 
-from model import Model,Translator
+from model import Model
 from agm import AGM
-from sax import AGMTranslator
+from translator import AGMTranslator
 
 if __name__ == '__main__':
     graphs=[]
@@ -10,7 +16,7 @@ if __name__ == '__main__':
     model2=Model("./data/test2.json")
     graphs.append(model2.clooca2graph("master","HEAD"))
     
-    agm_xml = Translator().graph2agm(graphs)
+    agm_xml = AGMTranslator().graph2agm(graphs)
     fp_clooca_in = 'work/clooca.in.xml'
     f = open(fp_clooca_in, 'w') 
     f.write(agm_xml)
