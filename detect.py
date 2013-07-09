@@ -3,4 +3,5 @@ from model import Model
 
 
 if __name__ == '__main__':
-    Model("./data/test.json")
+    model=Model("./data/test.json")
+    model.model2agm("master","HEAD")

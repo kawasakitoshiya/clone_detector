@@ -60,7 +60,7 @@ class Handler(xml.sax.handler.ContentHandler):
 
 class AGMTranslator(object):
     """We cant use 'label because gml doesnt allow duplicate label name'"""
-    def dic2graphml(self, graphs, out):
+    def dic2graphml(self, graphs, out, labeled):
         file_pointer = open(out, "w")
         
         #header
@@ -76,8 +76,9 @@ class AGMTranslator(object):
             num_node = 0
             for node in dic["node"]:
                 id = str(int(node["id"])+i*100)
+                root_index=str(int(node["id"])+i*100)
                 file_pointer.write("\tnode\t[\n")
-                file_pointer.write("\t\troot_index\t"+id+"\n")
+                file_pointer.write("\t\troot_index\t"+root_index+"\n")
                 file_pointer.write("\t\tid\t"+id+"\n")
                 file_pointer.write("\t\tgraphics\t[\n")
                 
@@ -86,8 +87,8 @@ class AGMTranslator(object):
                 file_pointer.write("\t\t\tw\t50\n")
                 file_pointer.write("\t\t\th\t50\n")
                 file_pointer.write("\t\t]\n") #end graphics
-                
-                #file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
+                if labeled:
+                    file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
                 file_pointer.write("\t]\n") #end node
                 num_node = num_node+1
             #edge
@@ -99,7 +100,8 @@ class AGMTranslator(object):
                 #file_pointer.write("\t\troot_index\t"+id+"\n")
                 file_pointer.write("\t\ttarget\t"+target+"\n")
                 file_pointer.write("\t\tsource\t"+source+"\n")
-                #file_pointer.write("\t\tlabel\t\""+edge["label"]+"\"\n")
+                if labeled:
+                    file_pointer.write("\t\tlabel\t\""+edge["label"]+"\"\n")
                 file_pointer.write("\t]\n")
             #end graph
             file_pointer.write("]\n")
@@ -108,13 +110,13 @@ class AGMTranslator(object):
         file_pointer.close()
         
     
-    def agm2gml(self, fp, out):
+    def agm2gml(self, fp, out, labeled):
         parser = xml.sax.make_parser()
         handler=Handler()
         parser.setContentHandler(handler)
         parser.parse(fp)
         print handler.graphs
-        self.dic2graphml(handler.graphs, out)
+        self.dic2graphml(handler.graphs, out, labeled)
     
 
 
@@ -125,9 +127,11 @@ if __name__ == '__main__':
     
     agm = AGMTranslator()
     if argc == 1:
-        agm.agm2gml("files/agm.utf8.xml", "output/o.gml")
+        agm.agm2gml("files/agm.utf8.xml", "output/o.gml",False)
     elif argc == 3:
-        agm.agm2gml(argvs[1], argvs[2])
+        agm.agm2gml(argvs[1], argvs[2],False)
+    elif argc == 4 and argvs[3]=="-l":
+        agm.agm2gml(argvs[1], argvs[2],True)
     else:
         print "invalid arguments"
 
