@@ -71,13 +71,15 @@ class AGMTranslator(object):
     """We can optionally use label which followed by graph number and node number 
     because crypt doesn't allow duplicate label
     """
-    def dic2graphml(self, graphs, out, labeled):
+    def dic2gml(self, graphs, out, min_node ,labeled ):
         file_pointer = open(out, "w")
         #header
         file_pointer.write('Creater\t"TK"\n')
         file_pointer.write("Version\t1.0\n")
         
         for i in range(len(graphs)):
+            if len(graphs[i]["node"]) < min_node:
+                continue
             #graph
             file_pointer.write("graph\t[\n")
             #node
@@ -123,13 +125,13 @@ class AGMTranslator(object):
         file_pointer.close()
         
     
-    def agm2gml(self, fp, out, labeled):
+    def agm2gml(self, fp, out,  min_node, labeled):
         parser = xml.sax.make_parser()
         handler=Handler()
         parser.setContentHandler(handler)
         parser.parse(fp)
         #print handler.graphs
-        self.dic2graphml(handler.graphs, out, labeled)
+        self.dic2gml(handler.graphs, out, min_node, labeled)
         
     @classmethod
     def prettify(self,elem):

@@ -15,6 +15,8 @@ if __name__ == '__main__':
     graphs.append(model.clooca2graph("master","HEAD"))
     model2=Model("./data/test2.json")
     graphs.append(model2.clooca2graph("master","HEAD"))
+    model3=Model("./data/test3.json")
+    graphs.append(model3.clooca2graph("master","HEAD"))
     
     agm_xml = AGMTranslator().graph2agm(graphs)
     fp_clooca_in = 'work/clooca.in.xml'
@@ -24,9 +26,9 @@ if __name__ == '__main__':
     
     fp_clooca_out = "work/clooca.out.xml"
     agm=AGM()
-    agm.mine_with_file(fp_clooca_in,fp_clooca_out,60)
+    agm.mine_with_file(fp_clooca_in,fp_clooca_out,100)
     
-    agm2=AGMTranslator()
+    trans=AGMTranslator()
     fp_clooca_out_gml = "work/clooca.out.gml"
-    agm2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,True)
+    trans.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True)
     
