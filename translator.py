@@ -210,11 +210,11 @@ if __name__ == '__main__':
     
     agm = AGMTranslator()
     if argc == 1:
-        agm.agm2gml("files/agm.utf8.xml", "output/o.gml",False)
+        agm.agm2gml("files/agm.utf8.xml", "output/o.gml",0,False)
     elif argc == 3:
-        agm.agm2gml(argvs[1], argvs[2],False)
+        agm.agm2gml(argvs[1], argvs[2],0,False)
     elif argc == 4 and argvs[3]=="-l":
-        agm.agm2gml(argvs[1], argvs[2],True)
+        agm.agm2gml(argvs[1], argvs[2],0,True)
     else:
         print "invalid arguments"
 

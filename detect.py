@@ -24,11 +24,15 @@ if __name__ == '__main__':
     f.write(agm_xml)
     f.close()
     
+    trans=AGMTranslator()
+    fp_clooca_in_gml = "work/clooca.in.gml"
+    trans.agm2gml(fp_clooca_in,fp_clooca_in_gml ,0,True)
+    
     fp_clooca_out = "work/clooca.out.xml"
     agm=AGM()
     agm.mine_with_file(fp_clooca_in,fp_clooca_out,100)
     
-    trans=AGMTranslator()
+    trans2=AGMTranslator()
     fp_clooca_out_gml = "work/clooca.out.gml"
-    trans.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True)
+    trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True)
     

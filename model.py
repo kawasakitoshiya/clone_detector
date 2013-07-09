@@ -33,17 +33,33 @@ class Model(object):
             nodes.append({"id":no_inc,"name":_class["name"],"meta_class":_class["_sys_meta"]})
             
             no_inc = no_inc + 1
-            for key in _class["attr"]:
-                attr_id = _class["attr"][key]["_sys_parent_uri"]+_class["attr"][key]["_sys_name"]
-                uri2id[attr_id]=no_inc
-                _edges.append({"source":_id,"target":attr_id,"type":"owned_member"})
-                nodes.append({
-                        "id":no_inc,
-                        "name":_class["attr"][key]["name"],
-                        "type":_class["attr"][key]["type"],
-                        "meta_class":_class["attr"][key]["_sys_meta"]
-                        })
-                no_inc = no_inc + 1
+            if _class.has_key("attr"):
+                for key in _class["attr"]:
+                    attr = _class["attr"][key]
+                    attr_id = attr["_sys_parent_uri"]+attr["_sys_name"]
+                    uri2id[attr_id]=no_inc
+                    _edges.append({"source":_id,"target":attr_id,"type":"owned_member"})
+                    nodes.append({
+                            "id":no_inc,
+                            "name":attr["name"],
+                            "type":attr["type"],
+                            "meta_class":attr["_sys_meta"]
+                            })
+                    no_inc = no_inc + 1
+            if _class.has_key("operation"):
+                for key in _class["operation"]:
+                    operation=_class["operation"][key]
+                    operation_id = operation["_sys_parent_uri"]+operation["_sys_name"]
+                    uri2id[operation_id]=no_inc
+                    _edges.append({"source":_id,"target":operation_id,"type":"owned_member"})
+                    nodes.append({
+                            "id":no_inc,
+                            "name":operation["name"],
+                            "type":operation["type"],
+                            "meta_class":operation["_sys_meta"]
+                            })
+                    no_inc = no_inc + 1
+                    
             assos = _class["srcAssociations"]
             for key in assos:
                 asso = assos[key]
