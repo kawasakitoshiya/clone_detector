@@ -90,7 +90,10 @@ class AGMTranslator(object):
                 file_pointer.write("\t\t\th\t50\n")
                 file_pointer.write("\t\t]\n") #end graphics
                 if labeled:
-                    file_pointer.write("\t\tlabel\t\""+node["label"]+"\"\n")
+                    if node.has_key("label"):
+                        file_pointer.write("\t\tlabel\t\""+node["label"]+"."+str(i)+"."+str(num_node)+"\"\n")
+                    else:
+                        file_pointer.write("\t\tlabel\t\""+str(i)+"."+str(num_node)+"\"\n")
                 file_pointer.write("\t]\n") #end node
                 num_node = num_node+1
             #edge
@@ -102,8 +105,8 @@ class AGMTranslator(object):
                 #file_pointer.write("\t\troot_index\t"+id+"\n")
                 file_pointer.write("\t\ttarget\t"+target+"\n")
                 file_pointer.write("\t\tsource\t"+source+"\n")
-                if labeled:
-                    file_pointer.write("\t\tlabel\t\""+edge["label"]+"\"\n")
+                if labeled and edge.has_key("label"):
+                    file_pointer.write("\t\tlabel\t\""+edge["label"]+"."+str(i)+"."+str(num_node)+"\"\n")
                 file_pointer.write("\t]\n")
             #end graph
             file_pointer.write("]\n")
@@ -117,7 +120,7 @@ class AGMTranslator(object):
         handler=Handler()
         parser.setContentHandler(handler)
         parser.parse(fp)
-        print handler.graphs
+        #print handler.graphs
         self.dic2graphml(handler.graphs, out, labeled)
     
 

@@ -32,7 +32,7 @@ class Translator(object):
         header = SubElement(root,"Header",{"copyright":"hogehoge","description":"xt2gml"})
         
         node_names={}
-        #edge_names={}
+        edge_names={}
         
         graph_data = SubElement(root,"GraphData")
         i_graph=1
@@ -42,9 +42,11 @@ class Translator(object):
             vertexes=[]
             for _node in _graph["nodes"]:
                 vertex=Element("Vertex",{"vertexId":str(_node["id"]+1),"dimension":str(1)})
-                vertex_label=SubElement(vertex,"VertexLabel",{"field":"node_name","value":_node["name"]})
+                if _node.has_key("name"):
+                    vertex_label=SubElement(vertex,"VertexLabel",{"field":"node_name","value":_node["name"]})
+                    node_names[_node["name"]]=True
                 vertexes.append(vertex)
-                node_names[_node["name"]]=True
+                    
             #edges for a graph
             edges=[]
             for _edge in _graph["edges"]:
@@ -55,7 +57,10 @@ class Translator(object):
                         "endVertexId":str(_edge["target"]+1),
                         "edgeType":edge_type
                         })
-                edge_label=SubElement(edge,"EdgeLabel",{"field":"edge_name","value":"nanika"})
+                #print _edge
+                if _edge.has_key("type"):
+                    #edge_label=SubElement(edge,"EdgeLabel",{"field":"edge_name","value":_edge["type"]})
+                    edge_names[_edge["type"]]=True
                 edges.append(edge)
                 #edge_names[]
             graph = SubElement(graph_data,"Graph",{"graphId":str(i_graph)})
@@ -72,7 +77,7 @@ class Translator(object):
         node_name_field.extend(node_name_keys)
         
         edge_name_field = SubElement(data_dictionary,"DataField",{"name":"edge_name","optype":"categorical"})
-        SubElement(edge_name_field,"Value",{"value":"nanika"})
+        SubElement(edge_name_field,"Value",{"value":"owned_member"})
         return self.prettify(root)
     
 
@@ -95,6 +100,7 @@ class Model(object):
         nodes=[]
         _edges=[]
         no_inc=0
+        edges_no=0
         classes = self.model["branch"][branch][version]["model"]["root"]["classes"]
         for key in classes:
             _class = classes[key]
@@ -104,9 +110,9 @@ class Model(object):
             
             no_inc = no_inc + 1
             for key in _class["attr"]:
-                attr_id = _class["attr"][key]["_sys_parent_uri"]+_class["attr"][key]["name"]
+                attr_id = _class["attr"][key]["_sys_parent_uri"]+_class["attr"][key]["_sys_name"]
                 uri2id[attr_id]=no_inc
-                _edges.append({"source":_id,"target":attr_id})
+                _edges.append({"source":_id,"target":attr_id,"type":"owned_member"})
                 nodes.append({
                         "id":no_inc,
                         "name":_class["attr"][key]["name"],
@@ -118,11 +124,19 @@ class Model(object):
             for key in assos:
                 asso = assos[key]
                 if not len(asso)==0:
-                    _edges.append(asso)
+                    asso_id = asso["_sys_parent_uri"]+asso["_sys_name"]
+                    uri2id[asso_id]=no_inc
+                    #we may need name for association
+                    nodes.append({
+                        "id":no_inc,
+                        "meta_class":asso["_sys_meta"]
+                    })
+                    _edges.append({"source":asso_id,"target":asso["source"],"type":"owned_member"})
+                    _edges.append({"source":asso_id,"target":asso["target"],"type":"owned_member"})
+                    no_inc = no_inc + 1
         edges=[]
-        edges_no=0
         for asso in _edges:
-            edges.append({"id":edges_no,"target":uri2id[asso["target"]],"source":uri2id[asso["source"]]})
+            edges.append({"id":edges_no,"target":uri2id[asso["target"]],"source":uri2id[asso["source"]],"type":asso["type"]})
             edges_no = edges_no + 1
         graph={"nodes":nodes,"edges":edges}
         return graph
