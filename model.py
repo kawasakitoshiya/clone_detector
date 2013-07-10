@@ -1,12 +1,19 @@
 """model.py
 
-This file is for model
+This file is for clooca's model
 (c) Toshiya Kawasaki 2013
 """
 import json
 
 class Model(object):
-    """Model class provides a dictionary model from file path"""
+    """Model class provides a dictionary model from file path
+    self.graph=
+    {
+        "nodes":[{"id":<int>,"name":<string>,"meta_classs":<string>},...],
+        "edges":[{"id":<int>,"source":<int>,"target":<int>,"edge_type":<"directed" or "directed">,"type":<string>},...]
+    }
+    
+    """
     def __init__(self, file_path):
         """receive a path to the json(txt) file and decode it to dictionary"""
         self.file_path = file_path
@@ -14,7 +21,60 @@ class Model(object):
         self.model = json.loads(file_pointer.read())
         file_pointer.close()
         #print self.model
-
+    def replace_containments_with_nodes(self):
+        """We replace class node contains attribute nodes (including operations)
+        with a new node which has new name represented with
+        a hash generated from the class name and other attributes
+        
+        elements of graph["nodes"] must be sorted by their id 
+        or we have to refactor this method
+        """
+        class_nodes=[]
+        nodes_to_remove=[False]*len(self.graph["nodes"])
+        for i in range(len(self.graph["nodes"])):
+            node = self.graph["nodes"][i]
+            if node["meta_class"] == "simpleclassdiagram.Class":
+                class_nodes.append(node)
+        
+        transitions=[]
+        for i in range(len(self.graph["nodes"])): 
+            transitions.append([])
+        
+        for i in range(len(self.graph["edges"])):
+            edge=self.graph["edges"][i]
+            source=int(edge["source"])
+            target=int(edge["target"])
+            transitions[source].append(target)
+            
+        for i in range(len(class_nodes)):
+            node_id = class_nodes[i]["id"]
+            represent_string=""
+            attributes=[]
+            represent_string += class_nodes[i]["name"]
+            class_containments=transitions[node_id]
+            for j in range(len(class_containments)):
+                attr_node = class_containments[j]
+                nodes_to_remove[attr_node]=True
+                attributes.append(self.graph["nodes"][attr_node]["name"])
+            attributes.sort()
+            for item in attributes:
+                represent_string += "." + item
+            class_nodes[i]["name"] = represent_string #replace class node's name with represent string
+        new_nodes=[]
+        for i in range(len(nodes_to_remove)):
+            if not nodes_to_remove[i]:
+                new_nodes.append(self.graph["nodes"][i])
+        self.graph["nodes"] = new_nodes
+        
+        new_edges=[]
+        for edge in self.graph["edges"]:
+            for i in range(len(nodes_to_remove)):
+                if nodes_to_remove[i]:
+                    if not edge["source"] == i and not edge["target"]:
+                        new_edges.append(edge)
+                        continue
+        self.graph["edges"] = new_edges
+        return self.graph
     def clooca2graph(self, branch, version):
         """This method receives the whole json of clooca's project
         and branch and version to be converted
@@ -85,7 +145,7 @@ class Model(object):
                 "edge_type":"undirected"
             })
             edges_no = edges_no + 1
-        graph={"nodes":nodes,"edges":edges}
-        return graph
+        self.graph={"nodes":nodes,"edges":edges}
+        return self.graph
         
         

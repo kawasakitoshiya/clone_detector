@@ -16,7 +16,14 @@ from xml.dom import minidom
 from Queue import Queue
 
 class Handler(xml.sax.handler.ContentHandler):
+    """This class translates AGM's graphml xml file
+    to the graph format with dictionary object
+    """
     def __init__(self):
+        """We keep these variables as instance variables.
+        old graphs will be remained
+        if we use these as class variables 
+        """
         self.in_graph = False
         self.in_vertex = False
         self.in_edge = False
@@ -26,7 +33,7 @@ class Handler(xml.sax.handler.ContentHandler):
         
     def startElement(self, name, attrs):
         if name == "Graph":
-            self.dic={"id":attrs.getValue("graphId"),"node":[], "edge":[]}
+            self.dic={"id":int(attrs.getValue("graphId")),"node":[], "edge":[]}
             self.in_graph = True
         if self.in_graph:
             if name == "Vertex":
@@ -34,7 +41,7 @@ class Handler(xml.sax.handler.ContentHandler):
                     self.nest = {}
                     self.in_vertex = True
                     try:
-                        self.nest["id"] = attrs.getValue("vertexId")
+                        self.nest["id"] = int(attrs.getValue("vertexId"))
                     except:
                         pass
             elif name == "Edge":
@@ -43,8 +50,8 @@ class Handler(xml.sax.handler.ContentHandler):
                     self.in_edge = True
                     try:
                         #self.nest["id"] = attrs.getValue("edgeId")
-                        self.nest["source"] = attrs.getValue("bgnVertexId")
-                        self.nest["target"] = attrs.getValue("endVertexId")
+                        self.nest["source"] = int(attrs.getValue("bgnVertexId"))
+                        self.nest["target"] = int(attrs.getValue("endVertexId"))
                     except:
                         pass
             elif name == "VertexLabel":
@@ -76,6 +83,13 @@ class AGMTranslator(object):
     """
     
     def is_all_nodes_connected(self,graph):
+        """We judge if all nodes in the given graph is connected
+        by using breath first search
+        because a graph cannot be a fragment if it has a isolated node
+        We deal with the graph as a undirected graph
+        because task of this method is judge if all node
+        is connected 
+        """
         all_nodes = len(graph["node"])
         has_arrived=[False]*all_nodes
         transitions=[]
@@ -115,35 +129,46 @@ class AGMTranslator(object):
             return False
         return True
         
-    def dic2gml(self, graphs, out, min_node ,labeled ):
+    def graphs2gml(self, graphs, out, min_node ,labeled ):
+        """Input format
+            graphs is ...
+            [{
+                "id":<int>
+                "node":[{"id":<int>,"label":<string>},...],
+                "edge":[{"source":<int>,"target":<int>,"label":<string>},...]
+            },...]
+        
+        """
         file_pointer = open(out, "w")
         #header
         file_pointer.write('Creater\t"TK"\n')
         file_pointer.write("Version\t1.0\n")
         
+        graphes_added_to_gml=0
         for i in range(len(graphs)):
             if len(graphs[i]["node"]) < min_node:
                 continue
             graph=graphs[i]
             if not self.is_all_nodes_connected(graph):
                 color='"#ffd700"'
+                continue
             else:
                 color='"#ffc0cb"'
             #graph
             file_pointer.write("graph\t[\n")
             #node
-            file_pointer.write("\tid\t"+graph["id"]+"\n")
+            file_pointer.write("\tid\t"+str(graph["id"])+"\n")
             num_node = 0
             for node in graph["node"]:
-                id = str(int(node["id"])+i*100)
-                root_index=str(int(node["id"])+i*100)
+                id = str(node["id"]+i*100)
+                root_index=str(node["id"]+i*100)
                 file_pointer.write("\tnode\t[\n")
                 file_pointer.write("\t\troot_index\t"+root_index+"\n")
                 file_pointer.write("\t\tid\t"+id+"\n")
                 file_pointer.write("\t\tgraphics\t[\n")
                 
                 file_pointer.write("\t\t\tx\t"+str(num_node*100)+"\n")
-                file_pointer.write("\t\t\ty\t"+str(num_node%2*100+i*300)+"\n")
+                file_pointer.write("\t\t\ty\t"+str(num_node%2*100+graphes_added_to_gml*300)+"\n")
                 file_pointer.write("\t\t\tw\t50\n")
                 file_pointer.write("\t\t\th\t50\n") 
                 file_pointer.write("\t\t\tfill\t"+color+"\n")
@@ -158,8 +183,8 @@ class AGMTranslator(object):
             #edge
             for edge in graph["edge"]:
                 #id = str(int(edge["id"])*-1)
-                target=str(int(edge["target"])+i*100)
-                source=str(int(edge["source"])+i*100)
+                target=str(edge["target"]+i*100)
+                source=str(edge["source"]+i*100)
                 file_pointer.write("\tedge\t[\n")
                 #file_pointer.write("\t\troot_index\t"+id+"\n")
                 file_pointer.write("\t\ttarget\t"+target+"\n")
@@ -169,6 +194,7 @@ class AGMTranslator(object):
                 file_pointer.write("\t]\n")
             #end graph
             file_pointer.write("]\n")
+            graphes_added_to_gml = graphes_added_to_gml +1
         #footer
         file_pointer.write('Title\t"TestNetwork"\n')
         file_pointer.close()
@@ -180,7 +206,7 @@ class AGMTranslator(object):
         self.parser.setContentHandler(self.handler)
         self.parser.parse(fp)
         #print handler.graphs
-        self.dic2gml(self.handler.graphs, out, min_node, labeled)
+        self.graphs2gml(self.handler.graphs, out, min_node, labeled)
         
     def prettify(cls,elem):
         """Return a pretty-printed XML string for the Element"""
