@@ -67,12 +67,18 @@ class Model(object):
         self.graph["nodes"] = new_nodes
         
         new_edges=[]
+        edges_to_remove=[False]*len(self.graph["edges"])
         for edge in self.graph["edges"]:
+            edge_need = False
+            source=edge["source"]
+            target=edge["target"]
             for i in range(len(nodes_to_remove)):
                 if nodes_to_remove[i]:
-                    if not edge["source"] == i and not edge["target"]:
-                        new_edges.append(edge)
-                        continue
+                    if i == source or i == target:
+                        edges_to_remove[edge["id"]]=True
+        for i in range(len(edges_to_remove)):
+            if not edges_to_remove[i]:
+                new_edges.append(self.graph["edges"][i])
         self.graph["edges"] = new_edges
         return self.graph
     def clooca2graph(self, branch, version):

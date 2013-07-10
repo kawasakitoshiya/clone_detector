@@ -11,7 +11,7 @@ from translator import AGMTranslator
 
 if __name__ == '__main__':
     
-    flag=False
+    flag=True
     
     graphs=[]
     model=Model("./data/test.json")
@@ -31,9 +31,9 @@ if __name__ == '__main__':
     if flag:
         model3.replace_containments_with_nodes()
     graphs.append(model3.graph)
-
     trans0 = AGMTranslator()
     agm_xml = trans0.graph2agm(graphs)
+
     fp_clooca_in = 'work/clooca.in.xml'
     f = open(fp_clooca_in, 'w') 
     f.write(agm_xml)

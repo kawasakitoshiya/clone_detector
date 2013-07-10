@@ -90,8 +90,18 @@ class AGMTranslator(object):
         because task of this method is judge if all node
         is connected 
         """
-        all_nodes = len(graph["node"])
-        has_arrived=[False]*all_nodes
+        max_id=0
+        for node in graph["node"]:
+            if max_id < node["id"]:
+                max_id=node["id"]
+        all_nodes = max_id
+        
+        has_arrived=[True]*all_nodes
+        
+        #to treat the diversed node id 
+        for node in graph["node"]:
+            has_arrived[node["id"]-1]=False
+        
         transitions=[]
         reversed_transitions=[]
         for i in range(all_nodes): 
@@ -107,7 +117,6 @@ class AGMTranslator(object):
         start = int(graph["node"][0]["id"])-1
         queue=Queue()
         queue.put(start)
-        
         def has_arrived_all(_has_arrived):
             for i in range(len(_has_arrived)):
                 if _has_arrived[i] == False:
@@ -206,6 +215,7 @@ class AGMTranslator(object):
         self.parser.setContentHandler(self.handler)
         self.parser.parse(fp)
         #print handler.graphs
+        #print self.handler.graphs
         self.graphs2gml(self.handler.graphs, out, min_node, labeled)
         
     def prettify(cls,elem):
