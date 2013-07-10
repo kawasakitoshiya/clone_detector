@@ -44,8 +44,10 @@ if __name__ == '__main__':
     fp_clooca_out = "work/clooca.out.xml"
     agm=AGM()
     agm.mine_with_file(fp_clooca_in,fp_clooca_out,100)
-    
     trans2=AGMTranslator()
     fp_clooca_out_gml = "work/clooca.out.gml"
-    trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True)
+    if flag:
+        trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,0,True)
+    else:
+        trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True)
     

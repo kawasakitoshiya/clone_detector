@@ -59,12 +59,14 @@ class Model(object):
             attributes.sort()
             for item in attributes:
                 represent_string += "." + item
-            class_nodes[i]["name"] = represent_string #replace class node's name with represent string
+            represent_num=0
+            for chara in represent_string:
+                represent_num += ord(chara)
+            class_nodes[i]["name"] = "mini."+str(represent_num) #replace class node's name with represent string
         new_nodes=[]
         for i in range(len(nodes_to_remove)):
             if not nodes_to_remove[i]:
                 new_nodes.append(self.graph["nodes"][i])
-        self.graph["nodes"] = new_nodes
         
         new_edges=[]
         edges_to_remove=[False]*len(self.graph["edges"])
@@ -79,6 +81,18 @@ class Model(object):
         for i in range(len(edges_to_remove)):
             if not edges_to_remove[i]:
                 new_edges.append(self.graph["edges"][i])
+        #assign new id
+        old2new=[-1]*len(self.graph["nodes"])
+        for (i,new_node) in  zip(range(len(new_nodes)),new_nodes):
+            old2new[new_node["id"]]=i
+        for node in new_nodes:
+            node["id"]=old2new[node["id"]]
+            
+        for edge in new_edges:
+            edge["source"]=old2new[edge["source"]]
+            edge["target"]=old2new[edge["target"]]
+        
+        self.graph["nodes"] = new_nodes
         self.graph["edges"] = new_edges
         return self.graph
     def clooca2graph(self, branch, version):
