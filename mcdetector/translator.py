@@ -138,7 +138,7 @@ class AGMTranslator(object):
             return False
         return True
         
-    def graphs2gml(self, graphs, out, min_node ,labeled ):
+    def graphs2gml(self, graphs, out, min_node ,labeled, all_nodes_connected):
         """Input format
             graphs is ...
             [{
@@ -160,7 +160,8 @@ class AGMTranslator(object):
             graph=graphs[i]
             if not self.is_all_nodes_connected(graph):
                 color='"#ffd700"'
-                continue
+                if all_nodes_connected:
+                    continue
             else:
                 color='"#ffc0cb"'
             #graph
@@ -209,14 +210,14 @@ class AGMTranslator(object):
         file_pointer.close()
         
     
-    def agm2gml(self, fp, out,  min_node, labeled):
+    def agm2gml(self, fp, out,  min_node, labeled, all_nodes_connected):
         self.parser = xml.sax.make_parser()
         self.handler=Handler()
         self.parser.setContentHandler(self.handler)
         self.parser.parse(fp)
         #print handler.graphs
         #print self.handler.graphs
-        self.graphs2gml(self.handler.graphs, out, min_node, labeled)
+        self.graphs2gml(self.handler.graphs, out, min_node, labeled, all_nodes_connected)
         
     def prettify(cls,elem):
         """Return a pretty-printed XML string for the Element"""
