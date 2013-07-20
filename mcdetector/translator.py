@@ -1,4 +1,4 @@
-"""translator.py
+"""translator
 
 Translator provides translations which
     dictionary type to 
@@ -32,6 +32,15 @@ class Handler(xml.sax.handler.ContentHandler):
         self.dic = {}
         
     def startElement(self, name, attrs):
+        """
+        Begin analysing if Tag "Graph" appears
+        if in Graph tag and find "Vertex" 
+            we make nest objected and assign their node
+        or "Edge" tag
+            we make nest objected and assign their node and source and target
+        then we will find "VertexLabel" or "EdgeLabel"
+            adds the label to nest
+        """
         if name == "Graph":
             self.dic={"id":int(attrs.getValue("graphId")),"node":[], "edge":[]}
             self.in_graph = True
