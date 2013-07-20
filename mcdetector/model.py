@@ -1,4 +1,4 @@
-"""model.py
+"""model
 
 This file is for clooca's model
 (c) Toshiya Kawasaki 2013
@@ -29,23 +29,33 @@ class Model(object):
         elements of graph["nodes"] must be sorted by their id 
         or we have to refactor this method
         """
+        
+        
+        #collect nodes which meta-class is Class 
         class_nodes=[]
-        nodes_to_remove=[False]*len(self.graph["nodes"])
         for i in range(len(self.graph["nodes"])):
             node = self.graph["nodes"][i]
             if node["meta_class"] == "simpleclassdiagram.Class":
                 class_nodes.append(node)
         
+        #generate a transitions according to the number of nodes
         transitions=[]
         for i in range(len(self.graph["nodes"])): 
             transitions.append([])
         
+        #transitons represents to which nodes a node has edges 
+        #transitions[2] = [4,7] means node2 has edges to node4 and node7
         for i in range(len(self.graph["edges"])):
             edge=self.graph["edges"][i]
             source=int(edge["source"])
             target=int(edge["target"])
             transitions[source].append(target)
-            
+        
+        #gather the names of attributes and operations which a Class node owns
+        #then sort the names and connect them
+        #and minify names by making a hash from the connected string
+        #add the attributes and operations to nodes_to_remove
+        nodes_to_remove=[False]*len(self.graph["nodes"])
         for i in range(len(class_nodes)):
             node_id = class_nodes[i]["id"]
             represent_string=""
@@ -63,12 +73,9 @@ class Model(object):
             for chara in represent_string:
                 represent_num += ord(chara)
             class_nodes[i]["name"] = "mini."+str(represent_num) #replace class node's name with represent string
-        new_nodes=[]
-        for i in range(len(nodes_to_remove)):
-            if not nodes_to_remove[i]:
-                new_nodes.append(self.graph["nodes"][i])
         
-        new_edges=[]
+        #if edge is connected to a node to remove
+        #add the edge to edges_to_remove
         edges_to_remove=[False]*len(self.graph["edges"])
         for edge in self.graph["edges"]:
             edge_need = False
@@ -78,23 +85,35 @@ class Model(object):
                 if nodes_to_remove[i]:
                     if i == source or i == target:
                         edges_to_remove[edge["id"]]=True
+        
+        #we throw old graph away and create new graph
+        #so we create new_nodes and new_edges
+        #by iterating the old nodes and old edges
+        #according to nodes_to_reomve and edges_to_remove
+        new_nodes=[]
+        for i in range(len(nodes_to_remove)):
+            if not nodes_to_remove[i]:
+                new_nodes.append(self.graph["nodes"][i])
+        new_edges=[]
         for i in range(len(edges_to_remove)):
             if not edges_to_remove[i]:
                 new_edges.append(self.graph["edges"][i])
+                
         #assign new id
         old2new=[-1]*len(self.graph["nodes"])
         for (i,new_node) in  zip(range(len(new_nodes)),new_nodes):
             old2new[new_node["id"]]=i
         for node in new_nodes:
             node["id"]=old2new[node["id"]]
-            
         for edge in new_edges:
             edge["source"]=old2new[edge["source"]]
             edge["target"]=old2new[edge["target"]]
         
+        #update the graph by new_nodes and new_edges
         self.graph["nodes"] = new_nodes
         self.graph["edges"] = new_edges
         return self.graph
+        
     def clooca2graph(self, branch, version):
         """This method receives the whole json of clooca's project
         and branch and version to be converted

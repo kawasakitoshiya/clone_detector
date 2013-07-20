@@ -12,7 +12,7 @@ from mcdetector.translator import AGMTranslator
 if __name__ == '__main__':
     
     minify=False
-    all_nodes_connected = False
+    all_nodes_connected = True
     
     graphs=[]
     model=Model("./data/test.json")
