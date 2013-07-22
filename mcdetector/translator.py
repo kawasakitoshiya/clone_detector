@@ -187,7 +187,7 @@ class AGMTranslator(object):
         attrs2.sort()
         num_same_elem=0
         for i in range(len(attrs1)):
-            for j in range(i,len(attrs2)):
+            for j in range(len(attrs2)):
                 if attrs1[i] == attrs2[j]:
                     num_same_elem += 1
                     continue
@@ -197,6 +197,84 @@ class AGMTranslator(object):
             similarity += (float)(num_same_elem)/(float)(max(len(attrs1),len(attrs2)))*(1.0-rate_name)
         return similarity
     
+    def remove_class_attributes(self,graph):
+        """
+        remove all attributes and operations connected to class from graph
+        
+        """
+        
+        #collect nodes which meta-class is Class 
+        class_nodes=[]
+        for i in range(len(graph["nodes"])):
+            node = graph["nodes"][i]
+            if node["meta_class"] == "simpleclassdiagram.Class":
+                class_nodes.append(node)
+        
+        #generate a transitions according to the number of nodes
+        transitions=[]
+        for i in range(len(graph["nodes"])): 
+            transitions.append([])
+        
+        #transitons represents to which nodes a node has edges 
+        #transitions[2] = [4,7] means node2 has edges to node4 and node7
+        for i in range(len(graph["edges"])):
+            edge=graph["edges"][i]
+            source=int(edge["source"])
+            target=int(edge["target"])
+            transitions[source].append(target)
+        
+        #gather the names of attributes and operations which a Class node owns
+        #then sort the names and connect them
+        #and minify names by making a hash from the connected string
+        #add the attributes and operations to nodes_to_remove
+        nodes_to_remove=[False]*len(graph["nodes"])
+        for i in range(len(class_nodes)):
+            node_id = class_nodes[i]["id"]
+            class_containments=transitions[node_id]
+            for j in range(len(class_containments)):
+                attr_node = class_containments[j]
+                nodes_to_remove[attr_node]=True
+        
+        #if edge is connected to a node to remove
+        #add the edge to edges_to_remove
+        edges_to_remove=[False]*len(graph["edges"])
+        for edge in graph["edges"]:
+            edge_need = False
+            source=edge["source"]
+            target=edge["target"]
+            for i in range(len(nodes_to_remove)):
+                if nodes_to_remove[i]:
+                    if i == source or i == target:
+                        edges_to_remove[edge["id"]]=True
+        
+        #we throw old graph away and create new graph
+        #so we create new_nodes and new_edges
+        #by iterating the old nodes and old edges
+        #according to nodes_to_reomve and edges_to_remove
+        new_nodes=[]
+        for i in range(len(nodes_to_remove)):
+            if not nodes_to_remove[i]:
+                new_nodes.append(graph["nodes"][i])
+        new_edges=[]
+        for i in range(len(edges_to_remove)):
+            if not edges_to_remove[i]:
+                new_edges.append(graph["edges"][i])
+                
+        #assign new id
+        old2new=[-1]*len(graph["nodes"])
+        for (i,new_node) in  zip(range(len(new_nodes)),new_nodes):
+            old2new[new_node["id"]]=i
+        for node in new_nodes:
+            node["id"]=old2new[node["id"]]
+        for edge in new_edges:
+            edge["source"]=old2new[edge["source"]]
+            edge["target"]=old2new[edge["target"]]
+        
+        #update the graph by new_nodes and new_edges
+        graph["nodes"] = new_nodes
+        graph["edges"] = new_edges
+        return True
+        
     def replace_containments_with_nodes_by_similarity(self, graph1, graph2, threshold):
         """We replace class node contains attribute nodes (including operations)
         with a new node which has new name represented with
@@ -222,7 +300,7 @@ class AGMTranslator(object):
         ###########
         ##   Class1
         ##########
-        #collect nodes which meta-class is Class1 
+        #collect nodes which meta-class is Class
         class_nodes1=[]
         for i in range(len(graph1["nodes"])):
             node = graph1["nodes"][i]
@@ -237,6 +315,7 @@ class AGMTranslator(object):
             class_containments_list1.append([])
             
         #transitons represents to which nodes a node has edges 
+        
         for i in range(len(graph1["edges"])):
             edge=graph1["edges"][i]
             source=int(edge["source"])
@@ -244,11 +323,11 @@ class AGMTranslator(object):
             transitions1[source].append(target)
             if graph1["nodes"][source]["meta_class"] == "simpleclassdiagram.Class":
                 class_containments_list1[source].append(graph1["nodes"][target]["name"])
-        
+                
         ###########
         ##   Class2
         ##########
-        #collect nodes which meta-class is Class2
+        #collect nodes which meta-class is Class
         class_nodes2=[]
         class_containments_list2=[]
         for i in range(len(graph2["nodes"])):
@@ -275,7 +354,6 @@ class AGMTranslator(object):
         #############
         ## start comparing
         #############
-        
         for i in range(len(class_nodes1)):
             for j in range(i,len(class_nodes2)):
                 cls1={
@@ -287,8 +365,25 @@ class AGMTranslator(object):
                     "elements":class_containments_list2[j]
                 }
                 if self.compare_classes(cls1, cls2) > threshold:
-                    print "Yahoo!",cls1["name"]
-        pass
+                    new_name="sim."+class_nodes1[i]["name"]
+                    class_nodes1[i]["name"]=new_name
+                    class_nodes2[j]["name"]=new_name
+        
+        #we have to replace the classes which were not replaced by similarity
+        #cause same name class can be judged as different classes by similarity
+        #
+        #Of cource we should consider the class which name starts with "sim."
+        for i in range(len(class_nodes1)):
+            if class_nodes1[i]["name"][:4] != "sim.":
+                class_nodes1[i]["name"] = "ori1." + class_nodes1[i]["name"]
+        for i in range(len(class_nodes2)):
+            if class_nodes2[i]["name"][:4] != "sim.":
+                class_nodes2[i]["name"] = "ori2." + class_nodes2[i]["name"]
+        
+        #makes new_nodes and new_edges
+        self.remove_class_attributes(graph1)
+        self.remove_class_attributes(graph2)
+
     
     def graphs2gml(self, graphs, out, min_node ,labeled, all_nodes_connected):
         """Input format
@@ -369,8 +464,6 @@ class AGMTranslator(object):
         self.handler=Handler()
         self.parser.setContentHandler(self.handler)
         self.parser.parse(fp)
-        #print handler.graphs
-        #print self.handler.graphs
         self.graphs2gml(self.handler.graphs, out, min_node, labeled, all_nodes_connected)
         
     def prettify(cls,elem):
