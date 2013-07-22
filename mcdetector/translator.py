@@ -15,7 +15,7 @@ from xml.dom import minidom
 
 from Queue import Queue
 
-from mcdetector.util.util import Util
+from util.util import *
 
 class Handler(xml.sax.handler.ContentHandler):
     """This class translates AGM's graphml xml file
@@ -149,6 +149,147 @@ class AGMTranslator(object):
             return False
         return True
         
+    def compare_classes(self, class1, class2):
+        """compare the elements in classes
+        First, map the elements 
+        Second, calculate the similarity if the name of class is same
+            Now the formula is (sim_name_of_class)*rate_name +sigma(sim_elem/((1.0-rate_name)/num_elem))
+        
+        I don't know which to use to determine the rate_of_similarity 
+        
+        Input format is...
+        {
+            name:<string>,
+            elements:[<string>,...]
+        }
+        
+        returns similarity [0,1]
+        
+        !!!TODO:
+            we assumed weight of class name is 0.5
+            and elements has wights that is (0.5 div size elements)
+            It might better to use other weight for class name
+            
+            and now we don't separate attributes and operations
+            It might better to get similarity respectively
+            because name(:=attribute) and name(:=operation) will be judged as same
+            
+        """
+        
+        rate_name=0.5
+        similarity=0
+        if class1["name"]==class2["name"]:
+            sim_name=1.0
+            similarity+=sim_name*rate_name;
+        attrs1=class1["elements"]
+        attrs1.sort()
+        attrs2=class2["elements"]
+        attrs2.sort()
+        num_same_elem=0
+        for i in range(len(attrs1)):
+            for j in range(i,len(attrs2)):
+                if attrs1[i] == attrs2[j]:
+                    num_same_elem += 1
+                    continue
+        if max(len(attrs1),len(attrs2))==0:  #if both classes dont have any attributes
+            similarity += 1.0*(1.0-rate_name)
+        else:
+            similarity += (float)(num_same_elem)/(float)(max(len(attrs1),len(attrs2)))*(1.0-rate_name)
+        return similarity
+    
+    def replace_containments_with_nodes_by_similarity(self, graph1, graph2, threshold):
+        """We replace class node contains attribute nodes (including operations)
+        with a new node which has new name represented with
+        a non special sequential name if similarity between classes is larger than threshold
+        
+        elements of graph["nodes"] must be sorted by their id 
+        or we have to refactor this method
+        
+        FEATURE
+            this method calculates the similarity between two classes
+            and replaces their name if similarity is larger than threshold
+            so, classes almost same will be replaced by same named node
+        
+        CONSTRAINT
+            this method can deal with just two classes
+            we need additional approach to deal with more than 2 classes
+        
+        Steps:
+            1. we makes class-nodes and transitions respectively
+            2. for each class-nodes of class1 we calculate similarity and if similarity is larger than threshold, we change names
+            3. we generate new graph by picking up only class-nodes and associated associate-node
+        """
+        ###########
+        ##   Class1
+        ##########
+        #collect nodes which meta-class is Class1 
+        class_nodes1=[]
+        for i in range(len(graph1["nodes"])):
+            node = graph1["nodes"][i]
+            if node["meta_class"] == "simpleclassdiagram.Class":
+                class_nodes1.append(node)
+        
+        #generate a transitions according to the number of nodes
+        transitions1=[]
+        class_containments_list1=[]
+        for i in range(len(graph1["nodes"])): 
+            transitions1.append([])
+            class_containments_list1.append([])
+            
+        #transitons represents to which nodes a node has edges 
+        for i in range(len(graph1["edges"])):
+            edge=graph1["edges"][i]
+            source=int(edge["source"])
+            target=int(edge["target"])
+            transitions1[source].append(target)
+            if graph1["nodes"][source]["meta_class"] == "simpleclassdiagram.Class":
+                class_containments_list1[source].append(graph1["nodes"][target]["name"])
+        
+        ###########
+        ##   Class2
+        ##########
+        #collect nodes which meta-class is Class2
+        class_nodes2=[]
+        class_containments_list2=[]
+        for i in range(len(graph2["nodes"])):
+            node = graph2["nodes"][i]
+            if node["meta_class"] == "simpleclassdiagram.Class":
+                class_nodes2.append(node)
+                
+        
+        #generate a transitions according to the number of nodes
+        transitions2=[]
+        for i in range(len(graph2["nodes"])): 
+            transitions2.append([])
+            class_containments_list2.append([])
+        
+        #transitons represents to which nodes a node has edges 
+        for i in range(len(graph2["edges"])):
+            edge=graph2["edges"][i]
+            source=int(edge["source"])
+            target=int(edge["target"])
+            transitions2[source].append(target)
+            if graph2["nodes"][source]["meta_class"] == "simpleclassdiagram.Class":
+                class_containments_list2[source].append(graph2["nodes"][target]["name"])
+        
+        #############
+        ## start comparing
+        #############
+        
+        for i in range(len(class_nodes1)):
+            for j in range(i,len(class_nodes2)):
+                cls1={
+                    "name":class_nodes1[i]["name"],
+                    "elements":class_containments_list1[i]
+                }
+                cls2={
+                    "name":class_nodes2[j]["name"],
+                    "elements":class_containments_list2[j]
+                }
+                if self.compare_classes(cls1, cls2) > threshold:
+                    print "Yahoo!",cls1["name"]
+        pass
+    
     def graphs2gml(self, graphs, out, min_node ,labeled, all_nodes_connected):
         """Input format
             graphs is ...
