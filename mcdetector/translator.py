@@ -15,6 +15,8 @@ from xml.dom import minidom
 
 from Queue import Queue
 
+from mcdetector.util.util import Util
+
 class Handler(xml.sax.handler.ContentHandler):
     """This class translates AGM's graphml xml file
     to the graph format with dictionary object
@@ -159,8 +161,9 @@ class AGMTranslator(object):
         """
         file_pointer = open(out, "w")
         #header
-        file_pointer.write('Creater\t"TK"\n')
-        file_pointer.write("Version\t1.0\n")
+        gml_string=""
+        gml_string+='Creater\t"TK"\n'
+        gml_string+="Version\t1.0\n"
         
         graphes_added_to_gml=0
         for i in range(len(graphs)):
@@ -174,48 +177,49 @@ class AGMTranslator(object):
             else:
                 color='"#ffc0cb"'
             #graph
-            file_pointer.write("graph\t[\n")
+            gml_string+="graph\t[\n"
             #node
-            file_pointer.write("\tid\t"+str(graph["id"])+"\n")
+            gml_string+="\tid\t"+str(graph["id"])+"\n"
             num_node = 0
             for node in graph["node"]:
                 id = str(node["id"]+i*100)
                 root_index=str(node["id"]+i*100)
-                file_pointer.write("\tnode\t[\n")
-                file_pointer.write("\t\troot_index\t"+root_index+"\n")
-                file_pointer.write("\t\tid\t"+id+"\n")
-                file_pointer.write("\t\tgraphics\t[\n")
+                gml_string+="\tnode\t[\n"
+                gml_string+="\t\troot_index\t"+root_index+"\n"
+                gml_string+="\t\tid\t"+id+"\n"
+                gml_string+="\t\tgraphics\t[\n"
                 
-                file_pointer.write("\t\t\tx\t"+str(num_node*100)+"\n")
-                file_pointer.write("\t\t\ty\t"+str(num_node%2*100+graphes_added_to_gml*300)+"\n")
-                file_pointer.write("\t\t\tw\t50\n")
-                file_pointer.write("\t\t\th\t50\n") 
-                file_pointer.write("\t\t\tfill\t"+color+"\n")
-                file_pointer.write("\t\t]\n") #end graphics
+                gml_string+="\t\t\tx\t"+str(num_node*100)+"\n"
+                gml_string+="\t\t\ty\t"+str(num_node%2*100+graphes_added_to_gml*300)+"\n"
+                gml_string+="\t\t\tw\t50\n"
+                gml_string+="\t\t\th\t50\n" 
+                gml_string+="\t\t\tfill\t"+color+"\n"
+                gml_string+="\t\t]\n" #end graphics
                 if labeled:
                     if node.has_key("label"):
-                        file_pointer.write("\t\tlabel\t\""+node["label"]+"."+str(i)+"."+str(num_node)+"\"\n")
+                        gml_string+="\t\tlabel\t\""+node["label"]+"."+str(i)+"."+str(num_node)+"\"\n"
                     else:
-                        file_pointer.write("\t\tlabel\t\""+str(i)+"."+str(num_node)+"\"\n")
-                file_pointer.write("\t]\n") #end node
+                        gml_string+="\t\tlabel\t\""+str(i)+"."+str(num_node)+"\"\n"
+                gml_string+="\t]\n" #end node
                 num_node = num_node+1
             #edge
             for edge in graph["edge"]:
                 #id = str(int(edge["id"])*-1)
                 target=str(edge["target"]+i*100)
                 source=str(edge["source"]+i*100)
-                file_pointer.write("\tedge\t[\n")
-                #file_pointer.write("\t\troot_index\t"+id+"\n")
-                file_pointer.write("\t\ttarget\t"+target+"\n")
-                file_pointer.write("\t\tsource\t"+source+"\n")
+                gml_string+="\tedge\t[\n"
+                #gml_string+="\t\troot_index\t"+id+"\n")
+                gml_string+="\t\ttarget\t"+target+"\n"
+                gml_string+="\t\tsource\t"+source+"\n"
                 if labeled and edge.has_key("label"):
-                    file_pointer.write("\t\tlabel\t\""+edge["label"]+"."+str(i)+"."+str(num_node)+"\"\n")
-                file_pointer.write("\t]\n")
+                    gml_string+="\t\tlabel\t\""+edge["label"]+"."+str(i)+"."+str(num_node)+"\"\n"
+                gml_string+="\t]\n"
             #end graph
-            file_pointer.write("]\n")
+            gml_string+="]\n"
             graphes_added_to_gml = graphes_added_to_gml +1
         #footer
-        file_pointer.write('Title\t"TestNetwork"\n')
+        gml_string+='Title\t"TestNetwork"\n'
+        file_pointer.write(gml_string)
         file_pointer.close()
         
     
