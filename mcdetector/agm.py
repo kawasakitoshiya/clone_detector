@@ -1,3 +1,8 @@
+"""agm
+
+(c) Toshiya Kawasaki 2013
+"""
+
 import commands
 
 class AGM(object):
