@@ -11,26 +11,26 @@ from mcdetector.translator import AGMTranslator
 
 if __name__ == '__main__':
     
-    minify=False
+    minify=1
     all_nodes_connected = True
     
     graphs=[]
     model=Model("./data/test.json")
     model.clooca2graph("master","HEAD")
-    if minify:
-        model.replace_containments_with_nodes()
+    if minify==1:
+        model.replace_containments_with_nodes_by_making_hash()
     graphs.append(model.graph)
     
     model2=Model("./data/test2.json")
     model2.clooca2graph("master","HEAD")
-    if minify:
-        model2.replace_containments_with_nodes()
+    if minify==1:
+        model2.replace_containments_with_nodes_by_making_hash()
     graphs.append(model2.graph)
 
     model3=Model("./data/test3.json")
     model3.clooca2graph("master","HEAD")
-    if minify:
-        model3.replace_containments_with_nodes()
+    if minify==1:
+        model3.replace_containments_with_nodes_by_making_hash()
     graphs.append(model3.graph)
     trans0 = AGMTranslator()
     agm_xml = trans0.graph2agm(graphs)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     agm.mine_with_file(fp_clooca_in,fp_clooca_out,100)
     trans2=AGMTranslator()
     fp_clooca_out_gml = "work/clooca.out.gml"
-    if minify:
+    if minify==1:
         trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,0,True,all_nodes_connected)
     else:
         trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,4,True,all_nodes_connected)
