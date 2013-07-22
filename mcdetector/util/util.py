@@ -1,6 +1,9 @@
-class XMLUtil(object):
+class Util(object):
     @classmethod
     def tab_str(cls,num_tab):
         if num_tab <= 0:
             raise Exception(0,"num_tab should be larger than 0.")
         return "\t"*num_tab
+    def gml_pretty_print(self, graphs):
+        
+        pass
