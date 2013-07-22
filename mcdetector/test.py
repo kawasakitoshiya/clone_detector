@@ -7,16 +7,17 @@ this is a test for module test
 
 
 from model import *  
+from translator import *  
 import unittest
 
-class MOdelClassTestCase(unittest.TestCase):
+class AGMTranslatorClassTestCase(unittest.TestCase):
     def setUp(self):
         pass
     def tearDown(self):
         pass
 
     def test_compare_class_is_same(self):
-        model=Model("test.data/test.large.json") #fake
+        translator=AGMTranslator() 
         class1={
             "name":"class1",
             "elements":[
@@ -33,11 +34,11 @@ class MOdelClassTestCase(unittest.TestCase):
                 "att2"
             ]
         }
-        similarity=model.compare_classes(class1,class2)
+        similarity=translator.compare_classes(class1,class2)
         self.assertEqual(similarity, 1.0)
         
     def test_compare_class_is_almost_same(self):
-        model=Model("test.data/test.large.json") #fake
+        translator=AGMTranslator() 
         class1={
             "name":"class1",
             "elements":[
@@ -58,7 +59,7 @@ class MOdelClassTestCase(unittest.TestCase):
                 "attdsa"
             ]
         }
-        similarity=model.compare_classes(class1,class2)
+        similarity=translator.compare_classes(class1,class2)
         self.assertEqual(similarity, 0.75)
 
 if __name__ == "__main__":
