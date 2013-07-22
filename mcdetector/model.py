@@ -21,6 +21,50 @@ class Model(object):
         self.model = json.loads(file_pointer.read())
         file_pointer.close()
         #print self.model
+    def compare_classes(self, class1, class2):
+        """compare the elements in classes
+        First, map the elements 
+        Second, calculate the similarity if the name of class is same
+            Now the formula is (sim_name_of_class)*rate_name +sigma(sim_elem/((1.0-rate_name)/num_elem))
+        
+        I don't know which to use to determine the rate_of_similarity 
+        
+        Input format is...
+        {
+            name:<string>,
+            elements:[<string>,...]
+        }
+        
+        returns similarity [0,1]
+        
+        !!!TODO:
+            we assumed weight of class name is 0.5
+            and elements has wights that is (0.5 div size elements)
+            It might better to use other weight for class name
+            
+            and now we don't separate attributes and operations
+            It might better to get similarity respectively
+            because name(:=attribute) and name(:=operation) will be judged as same
+            
+        """
+        rate_name=0.5
+        similarity=0
+        if class1["name"]==class2["name"]:
+            sim_name=1.0
+            similarity+=sim_name*rate_name;
+        attrs1=class1["elements"]
+        attrs1.sort()
+        attrs2=class2["elements"]
+        attrs2.sort()
+        num_same_elem=0
+        for i in range(len(attrs1)):
+            for j in range(i,len(attrs2)):
+                if attrs1[i] == attrs2[j]:
+                    num_same_elem += 1
+                    continue
+        similarity += (float)(num_same_elem)/(float)(max(len(attrs1),len(attrs2)))*(1.0-rate_name)
+        return similarity
+
     def replace_containments_with_nodes(self):
         """We replace class node contains attribute nodes (including operations)
         with a new node which has new name represented with
@@ -29,7 +73,6 @@ class Model(object):
         elements of graph["nodes"] must be sorted by their id 
         or we have to refactor this method
         """
-        
         
         #collect nodes which meta-class is Class 
         class_nodes=[]
@@ -115,7 +158,7 @@ class Model(object):
         return self.graph
         
     def clooca2graph(self, branch, version):
-        """This method receives the whole json of clooca's project
+        """This method receives the whole JSON of clooca's project
         and branch and version to be converted
         """
         # is "root" correct ?
