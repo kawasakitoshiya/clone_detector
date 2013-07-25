@@ -9,7 +9,7 @@ from mcdetector.model import Model
 from mcdetector.agm import AGM
 from mcdetector.translator import AGMTranslator
 
-if __name__ == '__main__':
+def main():
     
     minify=1
     all_nodes_connected=True
@@ -47,4 +47,6 @@ if __name__ == '__main__':
         trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,0,True,all_nodes_connected)
     else:
         trans2.agm2gml(fp_clooca_out,fp_clooca_out_gml ,0,True,all_nodes_connected)
-    
+        
+if __name__ == '__main__':
+    main()

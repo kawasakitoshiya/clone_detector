@@ -360,7 +360,7 @@ class AGMTranslator(object):
         #############
         ## start comparing
         #############
-
+        
         for i in range(len(class_nodes1)):
             highest_sim = -1
             highest_index = -1
@@ -374,13 +374,16 @@ class AGMTranslator(object):
                     "elements":class_containments_list2[class_nodes2[j]["id"]]
                 }
                 sim=self.compare_classes(cls1, cls2)
+                #print "cls1: ",class_containments_list1[class_nodes1[i]["id"]]
+                #print "cls2: ",class_containments_list2[class_nodes2[j]["id"]]
+                #print "sim: ",sim
                 if  sim> threshold:
                     if sim > highest_sim:
                         highest_sim = sim
                         highest_index = j
                         #print "cls1: ",class_nodes1[i]["id"]
                         #print "cls2: ",class_nodes2[i]["id"]
-                        #print "highest: ",highest_index
+                        #print "highest: ",sim
                         
             #highest updating using similarity
             if highest_sim > 0:
