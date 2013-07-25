@@ -165,7 +165,7 @@ class AGMTranslator(object):
         
         returns similarity [0,1]
         
-        !!!TODO:
+        TODO:
             we assumed weight of class name is 0.5
             and elements has wights that is (0.5 div size elements)
             It might better to use other weight for class name
@@ -283,6 +283,15 @@ class AGMTranslator(object):
         elements of graph["nodes"] must be sorted by their id 
         or we have to refactor this method
         
+        
+        INPUT
+            graph={
+                "nodes":[<node>,...],
+                "edges":[<edge>,...]
+            }
+                <node>={"id":<int>,"name":<string>,"meta_class":<string>}
+                <edge>={"id":<int>,"edge_type":<string>,"type":<string>,"source":<int>,"target":<int>}
+
         FEATURE
             this method calculates the similarity between two classes
             and replaces their name if similarity is larger than threshold
@@ -315,7 +324,6 @@ class AGMTranslator(object):
             class_containments_list1.append([])
             
         #transitons represents to which nodes a node has edges 
-        
         for i in range(len(graph1["edges"])):
             edge=graph1["edges"][i]
             source=int(edge["source"])
@@ -335,7 +343,6 @@ class AGMTranslator(object):
             if node["meta_class"] == "simpleclassdiagram.Class":
                 class_nodes2.append(node)
                 
-        
         #generate a transitions according to the number of nodes
         transitions2=[]
         for i in range(len(graph2["nodes"])): 
@@ -350,24 +357,36 @@ class AGMTranslator(object):
             transitions2[source].append(target)
             if graph2["nodes"][source]["meta_class"] == "simpleclassdiagram.Class":
                 class_containments_list2[source].append(graph2["nodes"][target]["name"])
-        
         #############
         ## start comparing
         #############
+
         for i in range(len(class_nodes1)):
-            for j in range(i,len(class_nodes2)):
+            highest_sim = -1
+            highest_index = -1
+            for j in range(len(class_nodes2)):
                 cls1={
                     "name":class_nodes1[i]["name"],
-                    "elements":class_containments_list1[i]
+                    "elements":class_containments_list1[class_nodes1[i]["id"]]
                 }
                 cls2={
                     "name":class_nodes2[j]["name"],
-                    "elements":class_containments_list2[j]
+                    "elements":class_containments_list2[class_nodes2[j]["id"]]
                 }
-                if self.compare_classes(cls1, cls2) > threshold:
-                    new_name="sim."+class_nodes1[i]["name"]
-                    class_nodes1[i]["name"]=new_name
-                    class_nodes2[j]["name"]=new_name
+                sim=self.compare_classes(cls1, cls2)
+                if  sim> threshold:
+                    if sim > highest_sim:
+                        highest_sim = sim
+                        highest_index = j
+                        #print "cls1: ",class_nodes1[i]["id"]
+                        #print "cls2: ",class_nodes2[i]["id"]
+                        #print "highest: ",highest_index
+                        
+            #highest updating using similarity
+            if highest_sim > 0:
+                new_name="sim."+class_nodes1[i]["name"]
+                class_nodes1[i]["name"]=new_name
+                class_nodes2[highest_index]["name"]=new_name
         
         #we have to replace the classes which were not replaced by similarity
         #cause same name class can be judged as different classes by similarity
